@@ -1,15 +1,15 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <clone/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import clone from './components/clone.vue'
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    clone
   }
 }
 </script>
