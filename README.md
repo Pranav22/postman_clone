@@ -1,4 +1,4 @@
-# myportfolio
+# postman_clone
 
 ## Project setup
 ```
