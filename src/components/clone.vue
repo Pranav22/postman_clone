@@ -1,8 +1,14 @@
 <template>
     <div>
-      
+      <div class="form-group row" style="overflow-x: hidden; max-width: 100%;">
+        <div class="container border border-dark shadow-lg p-3 mb-5 bg-white rounded col-md-2" style="margin-top:10px; background-color:rgb(85, 91, 97)!important">
+          <label style="color:#e9ecef">History</label>
+          <div v-for="data in historyArray" v-bind:key="data" style="" class="a">
+            <label class="bg-white" style="border-color : black; border: 1px solid #000000;">{{data}}</label>
+          </div>
+        </div>
 
-      <div class="container border border-dark shadow-lg p-3 mb-5 bg-white rounded" style="margin-top:10px; background-color:rgb(85, 91, 97)!important">
+      <div class="container border border-dark shadow-lg p-3 mb-5 bg-white rounded col-md-9" style="margin-top:10px; background-color:rgb(85, 91, 97)!important">
         <div class="form-group row" style="margin-top:10px;">
           <div class="col-sm-2">
             <select name="method" v-model="method" v-bind:class="{'form-control': true}">
@@ -25,10 +31,11 @@
             <label class="form-control">Content-type</label>
           </div>
           <div class="col-sm-6" style="margin-top:10px;">
-            <select name="c_type" v-model="c_type" v-bind:class="{'form-control': true}">
+            <!-- <select name="c_type" v-model="c_type" v-bind:class="{'form-control': true}">
               <option value="application/json">application/json</option>
               <option value="multipart/form-data">multipart/form-data</option>
-            </select>
+            </select> -->
+            <label class="form-control">application/json</label>
           </div>
           <div class="col-sm-6" style="margin-top:10px; border-radius:0rem !important">
             <label class="form-control" v-show="c_type=='application/json'">Payload</label>
@@ -37,7 +44,7 @@
           <div class="col-sm-6" style="margin-top:10px;">
             <label class="form-control">
               <div>
-                  Response <small style="background-color:'green'">&nbsp;&nbsp;{{resultStatus}}</small>
+                  Response
               </div>
             </label>
           </div>
@@ -49,11 +56,9 @@
             <textarea name="response" v-model="response" cols="3" rows="21" class="form-control" disabled></textarea>
           </div>
         </div>
-        
-          
-
       </div>
-
+      </div>
+      
     </div>
 </template>
 
@@ -76,13 +81,14 @@ export default {
       response : '',
       c_type : 'application/json',
       resultStatus : '',
-      isLoading : false
+      isLoading : false,
+      historyArray : (window.localStorage.getItem('history')) ? window.localStorage.getItem('history').split('},{') : []
     }
   },
   methods : {
     validateJson(){
       if(!this.url) {
-        alert('Please enter URL')
+        this.$alertify.error('Please enter URL')
         return false
       }  
       this.isLoading = true
@@ -94,9 +100,13 @@ export default {
       }
       catch(exception){
         this.isLoading = false
-        alert('enter valid JSON')
+        this.$alertify.error('enter valid JSON')
         return false;
       }
+      this.sendAPICall()
+    },
+    sendAPICall(){
+      this.historyLogger(this.url,this.method)
       axios({
         method : this.method,
         headers : {
@@ -108,10 +118,29 @@ export default {
         this.isLoading = false
         
         this.resultStatus = result.status + " " + result.statusText
-        console.log(this.resultStatus);
-        
+        if (this.resultStatus == '200 OK') {
+          this.$alertify.success('API returned with status code 200 OK')
+        }
         this.response = JSON.stringify(result.data, null, "\t")
+      }).catch((exception)=>{
+        this.$alertify.alert("Exception Caught ",""+exception)
+        this.isLoading = false
       })
+    },
+    historyLogger(url,method){
+      let historyObj = {
+        method : method,
+        url : url,
+        
+      }
+      if(window.localStorage.getItem('history')){
+        window.localStorage.setItem('history',window.localStorage.getItem('history')+','+JSON.stringify(historyObj))
+        this.historyArray = window.localStorage.getItem('history').split('},{')
+              
+      }
+      else{
+        window.localStorage.setItem('history',JSON.stringify(historyObj))
+      }
     }
   }
 }
@@ -137,5 +166,18 @@ a {
 }
 .border-dark {
     border-color: #FFFFFF !important;
+}
+div.a{
+  overflow: hidden; 
+  text-overflow: ellipsis;
+    cursor: pointer;
+
+}
+div.a:hover{
+  overflow: visible;
+  /* word-wrap: break-word; */
+  white-space: initial;
+  word-break: break-all;
+  cursor: pointer;
 }
 </style>
