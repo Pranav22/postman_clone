@@ -84,7 +84,7 @@ export default {
       c_type : 'application/json',
       resultStatus : '',
       isLoading : false,
-      historyArray : (window.localStorage.getItem('history')) ? window.localStorage.getItem('history').split('},{') : [],
+      historyArray : (window.localStorage.getItem('history')) ? window.localStorage.getItem('history').split('|') : [],
       file : ''
     }
   },
@@ -117,7 +117,7 @@ export default {
         formData.append('file', this.file);
         inputpayload = formData
       }
-      this.historyLogger(this.url,this.method)
+      this.historyLogger(this.url)
       axios({
         method : this.method,
         headers : {
@@ -138,20 +138,15 @@ export default {
         this.isLoading = false
       })
     },
-    historyLogger(url,method){
-      let historyObj = {
-        method : method,
-        url : url,
-        
-      }
+    historyLogger(url){
+      let historyObj = url
       if(window.localStorage.getItem('history')){
-        window.localStorage.setItem('history',window.localStorage.getItem('history')+','+JSON.stringify(historyObj))
-        this.historyArray = window.localStorage.getItem('history').split('},{')
-              
+        window.localStorage.setItem('history',window.localStorage.getItem('history')+'|'+historyObj)
+        this.historyArray = window.localStorage.getItem('history').split('|')        
       }
       else{
-        window.localStorage.setItem('history',JSON.stringify(historyObj))
-        this.historyArray = window.localStorage.getItem('history').split('},{')
+        window.localStorage.setItem('history',historyObj)
+        this.historyArray = window.localStorage.getItem('history').split('|')
       }
     },
     handleFileUpload(){
