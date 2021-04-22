@@ -14,6 +14,8 @@
             <select name="method" v-model="method" v-bind:class="{'form-control': true}">
               <option value="get">GET</option>
               <option value="post">POST</option>
+              <option value="put">PUT</option>
+              <option value="delete">DELETE</option>
             </select>
           </div>
           <div class="col-sm-8">
