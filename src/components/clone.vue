@@ -31,15 +31,15 @@
             <label class="form-control">Content-type</label>
           </div>
           <div class="col-sm-6" style="margin-top:10px;">
-            <!-- <select name="c_type" v-model="c_type" v-bind:class="{'form-control': true}">
+            <select name="c_type" v-model="c_type" v-bind:class="{'form-control': true}">
               <option value="application/json">application/json</option>
               <option value="multipart/form-data">multipart/form-data</option>
-            </select> -->
-            <label class="form-control">application/json</label>
+            </select>
+            <!-- <label class="form-control">application/json</label> -->
           </div>
           <div class="col-sm-6" style="margin-top:10px; border-radius:0rem !important">
             <label class="form-control" v-show="c_type=='application/json'">Payload</label>
-            <input type="file" id="fileinput" v-show="c_type=='multipart/form-data'" style="background-color : #545b61; color : white">
+            <input type="file" id="fileinput" v-show="c_type=='multipart/form-data'" style="background-color : #545b61; color : white" ref="file"  v-on:change="handleFileUpload()">
           </div>
           <div class="col-sm-6" style="margin-top:10px;">
             <label class="form-control">
@@ -82,7 +82,8 @@ export default {
       c_type : 'application/json',
       resultStatus : '',
       isLoading : false,
-      historyArray : (window.localStorage.getItem('history')) ? window.localStorage.getItem('history').split('},{') : []
+      historyArray : (window.localStorage.getItem('history')) ? window.localStorage.getItem('history').split('},{') : [],
+      file : ''
     }
   },
   methods : {
@@ -106,6 +107,14 @@ export default {
       this.sendAPICall()
     },
     sendAPICall(){
+      let inputpayload;
+      if (this.c_type == 'application/json') {
+        inputpayload = (this.jsonpayload) ? JSON.parse(this.jsonpayload) : {}
+      } else if(this.c_type == 'multipart/form-data'){
+        let formData = new FormData();
+        formData.append('file', this.file);
+        inputpayload = formData
+      }
       this.historyLogger(this.url,this.method)
       axios({
         method : this.method,
@@ -113,7 +122,7 @@ export default {
           'Content-Type' : this.c_type 
         },
         url : this.url,
-        data : (this.jsonpayload) ? JSON.parse(this.jsonpayload) : {}
+        data : inputpayload
       }).then((result)=>{
         this.isLoading = false
         
@@ -142,6 +151,9 @@ export default {
         window.localStorage.setItem('history',JSON.stringify(historyObj))
         this.historyArray = window.localStorage.getItem('history').split('},{')
       }
+    },
+    handleFileUpload(){
+      this.file = this.$refs.file.files[0];
     }
   }
 }
