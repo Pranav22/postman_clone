@@ -140,6 +140,7 @@ export default {
       }
       else{
         window.localStorage.setItem('history',JSON.stringify(historyObj))
+        this.historyArray = window.localStorage.getItem('history').split('},{')
       }
     }
   }
